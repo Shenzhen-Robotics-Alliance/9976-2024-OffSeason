@@ -13,38 +13,30 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class Intake extends SubsystemBase {
-    private final TalonFX lowerIntakeFalcon = new TalonFX(9), upperIntakeFalcon = new TalonFX(11);
-    private final DigitalInput beamBreaker = new DigitalInput(2);
+    private final TalonFX intakeFalcon = new TalonFX(11);
+    private final DigitalInput beamBreaker = new DigitalInput(1);
 
     public Intake() {
-        // super.setDefaultCommand();
-        lowerIntakeFalcon.setNeutralMode(NeutralModeValue.Coast);
-        lowerIntakeFalcon.setInverted(true);
-
-        upperIntakeFalcon.setNeutralMode(NeutralModeValue.Coast);
-        upperIntakeFalcon.setInverted(true);
+        intakeFalcon.setNeutralMode(NeutralModeValue.Coast);
+        intakeFalcon.setInverted(true);
 
         setDefaultCommand(Commands.run(this::runIdle, this));
     }
 
     public void runIdle() {
-        lowerIntakeFalcon.set(0);
-        upperIntakeFalcon.set(0);
+        intakeFalcon.set(0);
     }
 
     public void runIntake() {
-        lowerIntakeFalcon.set(0.3);
-        upperIntakeFalcon.set(0.3);
+        intakeFalcon.set(1);
     }
 
     //Shooter out the Node when note is stucked in.
     public void runReverse(){
-        lowerIntakeFalcon.set(-0.3);
-        upperIntakeFalcon.set(-0.3);
+        intakeFalcon.set(-0.5);
     }
     public void runShoot() {
-        lowerIntakeFalcon.set(0);
-        upperIntakeFalcon.set(0.3);
+        intakeFalcon.set(0.8);
     }
 
     public Command runIntakeUntilNotePresent() {
@@ -67,17 +59,10 @@ public class Intake extends SubsystemBase {
             .onlyIf(this::hasNote)
             .until(()-> !this.hasNote());
     }
-
-    //  //Shooter out the Node when note is stucked in.
-    // public Command outNote() {
-    //     return Commands.run(this::outIntake, this)
-    //         .onlyIf(this::hasNote)
-    //         .until(()-> !this.hasNote());
-    // }
     
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("BeamBreak value", beamBreaker.get());
+        SmartDashboard.putBoolean("Intake/NotePresent", hasNote());
     }
 
     public boolean hasNote() {

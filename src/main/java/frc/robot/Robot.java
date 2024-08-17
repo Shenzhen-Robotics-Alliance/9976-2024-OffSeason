@@ -13,9 +13,9 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
   public Robot() {
     // Starts recording to data log
-    // DataLogManager.start();
+    DataLogManager.start();
     // Record both DS control and joystick data
-    // DriverStation.startDataLog(DataLogManager.getLog());
+    DriverStation.startDataLog(DataLogManager.getLog());
   }
   private Command m_autonomousCommand;
 
