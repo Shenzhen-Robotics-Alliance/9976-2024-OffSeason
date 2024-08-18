@@ -12,18 +12,20 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
 public class Pitch extends SubsystemBase{
+    private static final double GEAR_RATIO = 222.2133;
     private static final ArmFeedforward k_feedForward = new ArmFeedforward(0.03, 0.26, 2.99);
     private static final PIDController k_feedBack = new PIDController(7.0/Math.toRadians(26), 0, 0);
     private static final TrapezoidProfile k_profile = new TrapezoidProfile(new Constraints(360, 720));
     private static final double tolerance = Math.toRadians(3);
     /* arm positions, in degrees */
-    public static final double LOWEST_POSITION = Math.toRadians(8),
+    public static final double LOWEST_POSITION = Math.toRadians(2),
         SHOOTING_POSITION = Math.toRadians(40),
         AMP_POSITION_DEG = Math.toRadians(90);
 
@@ -49,12 +51,14 @@ public class Pitch extends SubsystemBase{
     @Override
     public void periodic() {
         BaseStatusSignal.refreshAll(pitchPositionRevolutions, supplyCurrent);
-        SmartDashboard.putNumber("Arm/arm angle measured (deg)", Math.toDegrees(getArmAngle()));
+        SmartDashboard.putNumber("Arm/arm angle measured (deg)", Math.toDegrees(getArmAngleRad()));
         SmartDashboard.putNumber("Arm/arm supply current (A)", supplyCurrent.getValue());
     }
 
-    public double getArmAngle() {
-        return pitchFalcon.get();
+    public double getArmAngleRad() {
+        return Units.rotationsToRadians(
+                pitchPositionRevolutions.getValue() / GEAR_RATIO
+        ) - LOWEST_POSITION;
     }
 
     public void runSetPointProfiled(double setPoint) {
@@ -63,10 +67,10 @@ public class Pitch extends SubsystemBase{
         this.currentState = k_profile.calculate(Robot.kDefaultPeriod, currentState, goalStateDeg);
 
         final double feedForwardVoltage = k_feedForward.calculate(
-            getArmAngle(),
+            getArmAngleRad(),
             currentState.velocity
         );
-        final double feedBackVoltage = k_feedBack.calculate(getArmAngle(), currentState.position);
+        final double feedBackVoltage = k_feedBack.calculate(getArmAngleRad(), currentState.position);
 
         final VoltageOut vOut = new VoltageOut(feedForwardVoltage + feedBackVoltage).withEnableFOC(true);
         SmartDashboard.putNumber("Arm/FeedForwardVoltage", feedForwardVoltage);
@@ -76,6 +80,6 @@ public class Pitch extends SubsystemBase{
     }
 
     public boolean inPosition() {
-        return Math.abs(getArmAngle() - setPoint) < tolerance;
+        return Math.abs(getArmAngleRad() - setPoint) < tolerance;
     }
 }
