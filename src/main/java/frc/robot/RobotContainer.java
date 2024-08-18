@@ -9,6 +9,7 @@ import com.ctre.phoenix6.mechanisms.swerve.SwerveRequest;
 import com.ctre.phoenix6.mechanisms.swerve.SwerveModule.DriveRequestType;
 import com.pathplanner.lib.auto.AutoBuilder;
 
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -17,7 +18,11 @@ import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.commands.AimAtAmp;
+import frc.robot.commands.AimAtSpeaker;
+import frc.robot.commands.ShootSequence;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Pitch;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -62,6 +67,12 @@ public class RobotContainer {
 
     /* intake commands */
     pilotJoystick.leftTrigger(0.5).whileTrue(intake.runIntakeUntilNotePresent(pilotJoystick.getHID()));
+    pilotJoystick.a().whileTrue(Commands.run(intake::runReverse, intake));
+
+    /* shooter commands */
+    pilotJoystick.b().whileTrue(new AimAtSpeaker(pitch, shooter));
+    pilotJoystick.y().whileTrue(new AimAtAmp(pitch, shooter));
+    pilotJoystick.rightTrigger(0.5).whileTrue(Commands.run(intake::runIdle, intake));
 
 
     if (Utils.isSimulation()) {
@@ -70,7 +81,15 @@ public class RobotContainer {
   }
 
   private void configureAutoCommands() {
+    NamedCommands.registerCommand("intake note", intake.runIntakeUntilNotePresent().deadlineWith(Commands.run(
+            () -> {
+              pitch.runSetPointProfiled(Pitch.LOWEST_POSITION);
+              shooter.runIdle();
+            },
+            intake, pitch, shooter
+    )));
 
+    NamedCommands.registerCommand("shoot sequence", new ShootSequence(pitch, shooter, intake));
   }
 
   private final PowerDistribution pdp = new PowerDistribution(0, ModuleType.kCTRE);
