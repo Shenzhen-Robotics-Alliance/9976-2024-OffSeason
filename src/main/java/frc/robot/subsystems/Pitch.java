@@ -43,7 +43,7 @@ public class Pitch extends SubsystemBase{
         pitchCurrentLimit.SupplyCurrentLimitEnable = true;
         pitchFalcon.getConfigurator().apply(pitchCurrentLimit);
         pitchFalcon.setNeutralMode(NeutralModeValue.Coast);
-        pitchFalcon.setInverted(true);
+        pitchFalcon.setInverted(false);
         pitchFalcon.optimizeBusUtilization();
         setDefaultCommand(Commands.run(() -> runSetPointProfiled(LOWEST_POSITION), this));
     }

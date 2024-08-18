@@ -13,12 +13,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 
 public class Intake extends SubsystemBase {
-    private final TalonFX intakeFalcon = new TalonFX(11);
+    private final TalonFX intakeFalcon = new TalonFX(13);
     private final DigitalInput beamBreaker = new DigitalInput(1);
 
     public Intake() {
         intakeFalcon.setNeutralMode(NeutralModeValue.Coast);
-        intakeFalcon.setInverted(true);
+        intakeFalcon.setInverted(false);
 
         setDefaultCommand(Commands.run(this::runIdle, this));
     }
@@ -41,9 +41,9 @@ public class Intake extends SubsystemBase {
 
     public Command runIntakeUntilNotePresent() {
         return Commands.run(this::runIntake, this)
-            .onlyIf(() -> !this.hasNote())
-            .until(this::hasNote)
-            .finallyDo(this::runIdle);
+                .onlyIf(() -> !this.hasNote())
+                .until(this::hasNote)
+                .finallyDo(this::runIdle);
     }
 
     public Command runIntakeUntilNotePresent(XboxController hid) {
@@ -56,10 +56,10 @@ public class Intake extends SubsystemBase {
 
     public Command launchNote() {
         return Commands.run(this::runShoot, this)
-            .onlyIf(this::hasNote)
-            .until(()-> !this.hasNote());
+                .onlyIf(this::hasNote)
+                .until(()-> !this.hasNote());
     }
-    
+
     @Override
     public void periodic() {
         SmartDashboard.putBoolean("Intake/NotePresent", hasNote());

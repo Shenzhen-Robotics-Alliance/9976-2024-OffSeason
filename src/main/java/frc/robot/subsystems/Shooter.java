@@ -11,29 +11,29 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
-  private final TalonFX shooterFalcon1 = new TalonFX(-1), shooterFalcon2 = new TalonFX(-1);
-  /** Creates a new Shooter. */
-  public Shooter() {
+    private final TalonFX shooterFalcon1 = new TalonFX(-14), shooterFalcon2 = new TalonFX(-15);
+    /** Creates a new Shooter. */
+    public Shooter() {
         shooterFalcon1.setNeutralMode(NeutralModeValue.Coast);
         shooterFalcon1.setInverted(false);
 
         shooterFalcon2.setNeutralMode(NeutralModeValue.Coast);
         shooterFalcon2.setInverted(false);
         setDefaultCommand(Commands.run(this::runIdle, this));
-  }
+    }
 
-  public void runIdle() {
-    shooterFalcon1.set(0);
-    shooterFalcon2.set(0);
-  }
+    public void runIdle() {
+        shooterFalcon1.set(0);
+        shooterFalcon2.set(0);
+    }
 
-  public void runSpeakerShot() {
-    shooterFalcon1.set(0.7);
-    shooterFalcon2.set(0.7);
-  }
+    public void runSpeakerShot() {
+        shooterFalcon1.set(0.7);
+        shooterFalcon2.set(0.7);
+    }
 
-  public void runAmpShot() {
-    shooterFalcon1.set(0.25);
-    shooterFalcon2.set(0.35);
-  }
+    public void runAmpShot() {
+        shooterFalcon1.set(0.25);
+        shooterFalcon2.set(0.35);
+    }
 }
